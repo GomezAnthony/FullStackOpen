@@ -9,7 +9,7 @@
     "start": "node index.js",
     "build:ui": "rm -rf dist && cd ../frontend-notes/ && npm run build && cp -r dist ../backend-notes",
     "deploy": "fly deploy",
-    "deploy:full": "fly",
+    "deploy:full": "npm run build:ui && npm run deploy",
     "logs:prod": "fly logs",
     "lint": "eslint ."
   },

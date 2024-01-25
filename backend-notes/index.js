@@ -13,6 +13,10 @@ const requestLogger = (request, response, next) => {
   next();
 };
 
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' });
+};
+
 const errorHandler = (error, request, response, next) => {
   console.error(error.message);
 
@@ -23,10 +27,6 @@ const errorHandler = (error, request, response, next) => {
   }
 
   next(error);
-};
-
-const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: 'unknown endpoint' });
 };
 
 app.use(cors());
@@ -43,13 +43,10 @@ app.get('/api/notes', (request, response) => {
 app.post('/api/notes', (request, response, next) => {
   const body = request.body;
 
-  if (body.content === undefined) {
-    return response.status(400).json({ error: 'content missing' });
-  }
-
   const note = new Note({
     content: body.content,
     important: body.important || false,
+    date: new Date(),
   });
 
   note
@@ -82,11 +79,6 @@ app.delete('/api/notes/:id', (request, response, next) => {
 
 app.put('/api/notes/:id', (request, response, next) => {
   const { content, important } = request.body;
-
-  const note = {
-    content: body.content,
-    important: body.important,
-  };
 
   Note.findByIdAndUpdate(
     request.params.id,
