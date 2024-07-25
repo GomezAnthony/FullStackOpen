@@ -17,6 +17,14 @@ const Button = ({ onClick, label }) => {
   );
 };
 
+// const Total = ({ label }) => {
+//   return (
+//     <div>
+//       <p>{label}</p>
+//     </div>
+//   );
+// };
+
 const App = () => {
   const [good, setGood] = useState(0);
   const [neutral, setNeutral] = useState(0);
@@ -34,16 +42,30 @@ const App = () => {
     setBad(bad + 1);
   };
 
+  if (good === 0 && neutral === 0 && bad === 0) {
+    return (
+      <div>
+        <Display />
+        <p>No Data Given</p>
+        <Button label="Good" onClick={handleGoodClick} />
+        <Button label="Neutral" onClick={handleNeutralClick} />
+        <Button label="Bad" onClick={handleBadClick} />
+      </div>
+    );
+  }
+
   return (
     <div>
+      {/* Uncomment the Display component if it exists */}
       <Display />
       <Button label="Good" onClick={handleGoodClick} />
       <Button label="Neutral" onClick={handleNeutralClick} />
       <Button label="Bad" onClick={handleBadClick} />
       <h2>Statistics</h2>
       <p>Good: {good}</p>
-      <p>neutral: {neutral}</p>
+      <p>Neutral: {neutral}</p>
       <p>Bad: {bad}</p>
+      <p>Total: {good + neutral + bad}</p>
     </div>
   );
 };
