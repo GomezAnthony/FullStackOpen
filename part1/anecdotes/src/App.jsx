@@ -11,10 +11,19 @@ const Button = ({ label, onClick }) => {
 
 const App = () => {
   const [selected, setSelected] = useState(0);
+  const [vote, setVote] = useState([0, 0, 0, 0, 0, 0, 0, 0]);
 
   const randomClick = () => {
     setSelected(generator);
   };
+
+  const handleVote = (index) => {
+    const copy = [...vote];
+    copy[index] += 1;
+    setVote(vote);
+  };
+
+  console.log(vote);
   const anecdotes = [
     'If it hurts, do it more often.',
     'Adding manpower to a late software project makes it later!',
@@ -32,6 +41,7 @@ const App = () => {
     <div>
       {anecdotes[selected]}
       <Button onClick={randomClick} label="Next Anecdote" />
+      <Button onClick={handleVote} label="Vote" />
     </div>
   );
 };
