@@ -17,13 +17,18 @@ const App = () => {
     setSelected(generator);
   };
 
-  const handleVote = (index) => {
+  const handleVote = () => {
     const copy = [...vote];
-    copy[index] += 1;
-    setVote(vote);
+    copy[selected] += 1;
+    setVote(copy);
   };
 
-  console.log(vote);
+  const getMaxVotes = () => {
+    const maxVotes = Math.max(...vote);
+    const maxIndex = vote.indexOf(maxVotes);
+    return anecdotes[maxIndex];
+  };
+
   const anecdotes = [
     'If it hurts, do it more often.',
     'Adding manpower to a late software project makes it later!',
@@ -36,12 +41,18 @@ const App = () => {
   ];
 
   const generator = Math.floor(Math.random() * anecdotes.length);
+  console.log(anecdotes[selected]);
 
   return (
     <div>
       {anecdotes[selected]}
       <Button onClick={randomClick} label="Next Anecdote" />
       <Button onClick={handleVote} label="Vote" />
+      <div>
+        <h2>Anecdote with the most votes</h2>
+        <p>{getMaxVotes()}</p>
+        <p>Has {Math.max(...vote)} votes</p>
+      </div>
     </div>
   );
 };
