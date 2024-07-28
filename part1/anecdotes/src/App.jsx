@@ -41,7 +41,6 @@ const App = () => {
   ];
 
   const generator = Math.floor(Math.random() * anecdotes.length);
-  console.log(anecdotes[selected]);
 
   return (
     <div>
