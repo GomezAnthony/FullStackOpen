@@ -1,18 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Filter from '../components/Filter';
 import PersonForm from '../components/PersonForm';
 import Persons from '../components/Persons';
 
+import personService from './services/person';
+
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 },
-  ]);
+  const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [filter, setFiltered] = useState('');
+
+  useEffect(() => {
+    personService.getAll().then((initialPersons) => {
+      setPersons(initialPersons);
+    });
+  }, []);
 
   const addPerson = (event) => {
     event.preventDefault();
@@ -20,6 +23,22 @@ const App = () => {
       name: newName,
       number: newNumber,
     };
+
+    // axios
+    //   .post('http://localhost:3001/persons', addPersonObject)
+    //   .then((response) => {
+    //     console.log(response);
+    //     setPersons(persons.concat(response.data));
+    //     setNewName('');
+    //     setNewNumber('');
+    //   });
+
+    personService.create(addPersonObject).then((initialPersons) => {
+      setPersons(persons.concat(initialPersons));
+      setNewName('');
+      setNewNumber('');
+    });
+
     const nameExists = persons.some((person) => person.name === newName);
 
     if (nameExists) {
@@ -32,17 +51,18 @@ const App = () => {
     }
   };
 
+  const removeContact = (id) => {
+    console.log(id);
+  };
+
   const personsFiltered = filter
     ? persons.filter((person) =>
         person.name.toLowerCase().includes(filter.toLowerCase())
       )
     : persons;
 
-  console.log(personsFiltered);
-
   const handleNameChange = (event) => {
     setNewName(event.target.value);
-    console.log(event.target.value);
   };
 
   const handlePhoneChange = (event) => {
@@ -65,7 +85,10 @@ const App = () => {
         onChangeNumber={handlePhoneChange}
       />
       <h2>Numbers</h2>
-      <Persons persons={personsFiltered} />
+      <Persons
+        persons={personsFiltered}
+        del={() => removeContact(persons.id)}
+      />
     </div>
   );
 };

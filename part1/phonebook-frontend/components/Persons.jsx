@@ -1,10 +1,13 @@
 /* eslint-disable react/prop-types */
-function Persons({ persons }) {
+import Button from './Button';
+
+function Persons({ persons, del }) {
   return (
     <div>
       {persons.map((person) => (
-        <li key={person.name}>
+        <li key={person.id}>
           {person.name} {person.number}
+          <Button onClick={del} label="Delete" />
         </li>
       ))}
     </div>
