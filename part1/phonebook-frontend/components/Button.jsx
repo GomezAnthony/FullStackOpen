@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
-function Button({ label, onClick }) {
+function Button({ label, onClick, id }) {
   return (
     <div>
-      <button onClick={onClick}>{label}</button>
+      <button onClick={() => onClick(id)}>{label}</button>
     </div>
   );
 }

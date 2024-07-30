@@ -52,7 +52,8 @@ const App = () => {
   };
 
   const removeContact = (id) => {
-    console.log(id);
+    const removeCont = persons.filter((person) => person.id !== id);
+    personService.remove(id);
   };
 
   const personsFiltered = filter
@@ -85,10 +86,7 @@ const App = () => {
         onChangeNumber={handlePhoneChange}
       />
       <h2>Numbers</h2>
-      <Persons
-        persons={personsFiltered}
-        del={() => removeContact(persons.id)}
-      />
+      <Persons persons={personsFiltered} handleDelete={removeContact} />
     </div>
   );
 };
