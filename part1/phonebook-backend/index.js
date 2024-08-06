@@ -4,6 +4,15 @@ const app = express();
 // Middleware
 app.use(express.json());
 
+const requestLogger = (request, response, next) => {
+  console.log('Method:', request.method);
+  console.log('Path:  ', request.path);
+  console.log('Body:  ', request.body);
+  console.log('---');
+  next();
+};
+app.use(requestLogger);
+
 let persons = [
   {
     id: '1',
@@ -59,6 +68,15 @@ const generateId = () => {
   return String(maxId + 1);
 };
 
+app.get('/info', (request, response) => {
+  const date = new Date();
+  const total = persons.length;
+  response.send(`<p>Phonebook info has ${total}</p>
+    <br/>
+    ${date.toString()}
+    `);
+});
+
 app.post('/api/persons', (request, response) => {
   const body = request.body;
 
@@ -78,6 +96,12 @@ app.post('/api/persons', (request, response) => {
 
   response.json(persons);
 });
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' });
+};
+
+app.use(unknownEndpoint);
 
 const PORT = 3001;
 app.listen(PORT, () => {
