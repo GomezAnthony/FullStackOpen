@@ -44,6 +44,7 @@ app.get('/api/persons/:id', async (request, response) => {
   } catch (err) {
     response
       .status(500)
+      .send({ error: 'malformatted id' })
       .json({ error: 'An error occurred while fetching data' });
   }
 });
