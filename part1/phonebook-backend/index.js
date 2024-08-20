@@ -45,6 +45,7 @@ app.get('/api/persons/:id', async (request, response) => {
     response
       .status(500)
       .send({ error: 'malformatted id' })
+      .next(err)
       .json({ error: 'An error occurred while fetching data' });
   }
 });
@@ -101,6 +102,18 @@ const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' });
 };
 
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' });
+  }
+
+  next(error);
+};
+
+// this has to be the last loaded middleware, also all the routes should be registered before this!
+app.use(errorHandler);
 app.use(unknownEndpoint);
 
 const PORT = process.env.PORT;
