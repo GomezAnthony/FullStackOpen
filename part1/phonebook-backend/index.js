@@ -107,16 +107,18 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' });
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message });
+
+    next(error);
   }
 
-  next(error);
+  // this has to be the last loaded middleware, also all the routes should be registered before this!
+  app.use(errorHandler);
+  app.use(unknownEndpoint);
+
+  const PORT = process.env.PORT;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 };
-
-// this has to be the last loaded middleware, also all the routes should be registered before this!
-app.use(errorHandler);
-app.use(unknownEndpoint);
-
-const PORT = process.env.PORT;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
