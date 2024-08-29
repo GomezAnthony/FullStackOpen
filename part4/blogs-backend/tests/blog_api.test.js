@@ -2,31 +2,17 @@ const { test, after, beforeEach } = require('node:test');
 const assert = require('node:assert');
 const Blog = require('../models/blogs');
 const mongoose = require('mongoose');
+const helper = require('./test_helper');
 const supertest = require('supertest');
 const app = require('../app');
 
 const api = supertest(app);
 
-const initialBlogs = [
-  {
-    title: 'Atomic Habits',
-    author: 'James Clear',
-    url: 'www.google.com',
-    likes: 100,
-  },
-  {
-    title: 'Million Dollar Weekend',
-    author: 'Noah Kagan',
-    url: 'www.google.com',
-    likes: 200,
-  },
-];
-
 beforeEach(async () => {
   await Blog.deleteMany({});
-  let blogObj = new Blog(initialBlogs[0]);
+  let blogObj = new Blog(helper.initialBlogs[0]);
   await blogObj.save();
-  blogObj = new Blog(initialBlogs[1]);
+  blogObj = new Blog(helper.initialBlogs[1]);
   await blogObj.save();
 });
 
@@ -35,6 +21,11 @@ test('blogs are returned as json', async () => {
     .get('/api/blogs')
     .expect(200)
     .expect('Content-Type', /application\/json/);
+});
+
+test('all blogs are returned', async () => {
+  const repsonse = await api('/api/blogs');
+  assert.strictEqual(response.body.length, helper.initialBlogs.length);
 });
 
 test('there are two blogs', async () => {
@@ -64,13 +55,24 @@ test('a valid blog can be added', async () => {
     .expect(201)
     .expect('Content-Type', /application\/json/);
 
-  const response = await api.get('/api/blogs');
+  const blogsAtEnd = await helper.blogsInDb();
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1);
 
-  const contents = response.body.map((r) => r.title);
+  const contents = blogsAtEnd.map((r) => r.title);
+  assert(contents.includes('async/await simplifies making async calls'));
+});
 
-  assert.strictEqual(response.body.length, initialBlogs.length + 1); // This!!!!
+test('blog without author is not added', async () => {
+  const newBlog = {
+    title: 'Making Money',
+    url: 'www.spooner.com',
+    likes: 20,
+  };
 
-  assert(contents.includes('Million Dollar Weekend'));
+  await api.post('/api/blogs').send(newBlog).expect(400);
+
+  const blogsAtEnd = await helper.blogsInDbInDb();
+  assert.strictEqual(blogsAtEndAtEnd.length, helper.initialBlogs.length);
 });
 
 after(async () => {
