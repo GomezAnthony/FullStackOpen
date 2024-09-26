@@ -14,6 +14,19 @@ const App = () => {
   const [password, setPassword] = useState('');
   const [user, setUser] = useState(null);
 
+  useEffect(() => {
+    blogService.getAll().then((blogs) => setBlogs(blogs));
+  }, []);
+
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser');
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON);
+      setUser(user);
+      blogService.setToken(user.token);
+    }
+  }, []);
+
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
@@ -21,6 +34,10 @@ const App = () => {
         username,
         password,
       });
+
+      window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user));
+
+      blogService.setToken(user.token);
       setUser(user);
       setUsername('');
       setPassword('');
@@ -82,13 +99,38 @@ const App = () => {
     </form>
   );
 
-  useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs));
-  }, []);
+  const blogForm = () => (
+    <form onSubmit={addBlog}>
+      <div>
+        Title:
+        <input type="text" value={title} onChange={handleTitleChange} />
+      </div>
+      <div>
+        Author:
+        <input text="text" value={author} onChange={handleAuthorChange} />
+      </div>
+      <div>
+        Url:
+        <input text="text" value={url} onChange={handleUrlChange} />
+      </div>
+      <div>
+        Likes:
+        <input text="text" value={likes} onChange={handleLikeChange} />
+      </div>
+      <button type="submit">Add Blog</button>
+    </form>
+  );
 
   return (
     <div>
-      {user === null && loginForm()}
+      {user === null ? (
+        loginForm()
+      ) : (
+        <div>
+          <p>{user.name} logged-in</p>
+          {blogForm()}
+        </div>
+      )}
       <h2>blogs</h2>
       {blogs.map((blog) => (
         <Blog key={blog.id} blog={blog} />
