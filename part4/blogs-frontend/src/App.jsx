@@ -49,6 +49,17 @@ const App = () => {
     }
   };
 
+  const handleLogout = (event) => {
+    event.preventDefault();
+    // Remove user data from local storage
+    window.localStorage.removeItem('loggedBlogappUser');
+    // Clear the user state
+    setUser(null);
+    // Reset the token in your blog service
+    blogService.setToken(null);
+    // Optionally, redirect to login page or update UI
+  };
+
   const handleTitleChange = (e) => {
     setTitle(e.target.value);
   };
@@ -65,7 +76,7 @@ const App = () => {
     setLikes(e.target.value);
   };
 
-  const addBlog = (event) => {
+  const addBlog = async (event) => {
     event.preventDefault();
     const blogObject = {
       title: title,
@@ -73,6 +84,17 @@ const App = () => {
       url: url,
       likes: likes,
     };
+
+    try {
+      const returnedBlog = await blogService.create(blogObject);
+      setBlogs(blogs.concat(returnedBlog));
+      setTitle('');
+      setAuthor('');
+      setUrl('');
+      setLikes(0);
+    } catch (exception) {
+      console.error('Error adding blog:', exception);
+    }
   };
 
   const loginForm = () => (
@@ -127,7 +149,9 @@ const App = () => {
         loginForm()
       ) : (
         <div>
-          <p>{user.name} logged-in</p>
+          <p>
+            {user.name} logged-in <button onClick={handleLogout}>Logout</button>
+          </p>
           {blogForm()}
         </div>
       )}
