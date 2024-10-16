@@ -1,18 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Blog from './components/Blog';
 import blogService from './services/blogs';
 import loginService from './services/login';
+import LoginForm from './components/LoginForm';
+import BlogForm from './components/BlogForm';
+import Togglable from './components/Togglable';
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
-  const [newBlogs, setNewBlogs] = useState('');
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-  const [url, setUrl] = useState('');
-  const [likes, setLikes] = useState(0);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [user, setUser] = useState(null);
+  const [loginVisible, setLoginVisible] = useState(false);
+
+  const blogFormRef = useRef();
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -51,108 +52,55 @@ const App = () => {
 
   const handleLogout = (event) => {
     event.preventDefault();
-    // Remove user data from local storage
     window.localStorage.removeItem('loggedBlogappUser');
-    // Clear the user state
     setUser(null);
-    // Reset the token in your blog service
     blogService.setToken(null);
-    // Optionally, redirect to login page or update UI
   };
 
-  const handleTitleChange = (e) => {
-    setTitle(e.target.value);
-  };
-
-  const handleAuthorChange = (e) => {
-    setAuthor(e.target.value);
-  };
-
-  const handleUrlChange = (e) => {
-    setUrl(e.target.value);
-  };
-
-  const handleLikeChange = (e) => {
-    setLikes(e.target.value);
-  };
-
-  const addBlog = async (event) => {
-    event.preventDefault();
-    const blogObject = {
-      title: title,
-      author: author,
-      url: url,
-      likes: likes,
-    };
-
+  const addBlog = async (blogObject) => {
     try {
+      blogFormRef.current.toggleVisibility();
       const returnedBlog = await blogService.create(blogObject);
       setBlogs(blogs.concat(returnedBlog));
-      setTitle('');
-      setAuthor('');
-      setUrl('');
-      setLikes(0);
     } catch (exception) {
-      console.error('Error adding blog:', exception);
+      console.log('Error creating blog');
     }
   };
 
-  const loginForm = () => (
-    <form onSubmit={handleLogin}>
-      <div>
-        username
-        <input
-          type="text"
-          value={username}
-          name="Username"
-          onChange={({ target }) => setUsername(target.value)}
-        />
-      </div>
-      <div>
-        password
-        <input
-          type="password"
-          value={password}
-          name="Password"
-          onChange={({ target }) => setPassword(target.value)}
-        />
-      </div>
-      <button type="submit">login</button>
-    </form>
-  );
+  const loginForm = () => {
+    const hideWhenVisible = { display: loginVisible ? 'none' : '' };
+    const showWhenVisible = { display: loginVisible ? '' : 'none' };
 
-  const blogForm = () => (
-    <form onSubmit={addBlog}>
+    return (
       <div>
-        Title:
-        <input type="text" value={title} onChange={handleTitleChange} />
+        <div style={hideWhenVisible}>
+          <button onClick={() => setLoginVisible(true)}>log in</button>
+        </div>
+        <div style={showWhenVisible}>
+          <LoginForm
+            username={username}
+            password={password}
+            handleUsernameChange={({ target }) => setUsername(target.value)}
+            handlePasswordChange={({ target }) => setPassword(target.value)}
+            handleSubmit={handleLogin}
+          />
+          <button onClick={() => setLoginVisible(false)}>cancel</button>
+        </div>
       </div>
-      <div>
-        Author:
-        <input text="text" value={author} onChange={handleAuthorChange} />
-      </div>
-      <div>
-        Url:
-        <input text="text" value={url} onChange={handleUrlChange} />
-      </div>
-      <div>
-        Likes:
-        <input text="text" value={likes} onChange={handleLikeChange} />
-      </div>
-      <button type="submit">Add Blog</button>
-    </form>
-  );
+    );
+  };
 
   return (
     <div>
-      {user === null ? (
-        loginForm()
-      ) : (
+      <h1>Blogs</h1>
+      {!user && loginForm()}
+      {user && (
         <div>
-          <p>
-            {user.name} logged-in <button onClick={handleLogout}>Logout</button>
-          </p>
-          {blogForm()}
+          <p>{user.name} logged in</p>
+          <button onClick={handleLogout}>Logout</button>
+          <Togglable buttonLabel="new blog" ref={blogFormRef}>
+            <BlogForm createBlog={addBlog} />
+          </Togglable>
         </div>
       )}
       <h2>blogs</h2>
