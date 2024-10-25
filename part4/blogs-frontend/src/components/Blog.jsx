@@ -10,9 +10,26 @@ const Blog = ({ blog }) => {
     marginBottom: 5,
   };
 
+  const showBlog = () => {
+    setShow(!show);
+    console.log(show);
+  };
+
   return (
     <div style={blogStyle}>
-      {blog.title} {blog.author}
+      {blog.title}
+      <button onClick={showBlog}>View</button>
+      {show ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <span>{blog.author}</span>
+          <span>{blog.url}</span>
+          <span>
+            {blog.likes} <button>Like</button>
+          </span>
+        </div>
+      ) : (
+        !show
+      )}
     </div>
   );
 };
