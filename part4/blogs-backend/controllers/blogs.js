@@ -69,4 +69,32 @@ blogsRouter.delete('/:id', async (request, response, next) => {
   }
 });
 
+// Add this after your existing routes in blogsRouter
+
+// Add this after your existing routes in blogsRouter
+
+blogsRouter.put('/:id', async (request, response, next) => {
+  const { user, likes, author, title, url } = request.body;
+
+  try {
+    const blog = await Blog.findById(request.params.id);
+    if (!blog) {
+      return response.status(404).json({ error: 'Blog not found' });
+    }
+
+    // Update the blog fields
+    blog.likes = likes;
+    blog.user = user; // Update user reference if necessary
+    blog.author = author;
+    blog.title = title;
+    blog.url = url;
+
+    // Save the updated blog post
+    const updatedBlog = await blog.save();
+    response.json(updatedBlog);
+  } catch (exception) {
+    next(exception);
+  }
+});
+
 module.exports = blogsRouter;
