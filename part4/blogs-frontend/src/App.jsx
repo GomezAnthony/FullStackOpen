@@ -12,7 +12,6 @@ const App = () => {
   const [password, setPassword] = useState('');
   const [user, setUser] = useState(null);
   const [loginVisible, setLoginVisible] = useState(false);
-
   const blogFormRef = useRef();
 
   useEffect(() => {
