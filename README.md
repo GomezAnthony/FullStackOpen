@@ -1,1 +1,1 @@
-# FullStackOpen Course
+# FullStackOpen Course 2024
